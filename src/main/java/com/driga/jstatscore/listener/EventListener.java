@@ -52,6 +52,9 @@ public class EventListener implements Listener {
             playerList.remove((Player) e.getDamager());
             return;
         }
+        if(e.getCause().equals(EntityDamageEvent.DamageCause.CUSTOM)){
+            return;
+        }
         if(e.getDamager() instanceof Player && e.getEntity() instanceof Player){
             Player damager = (Player) e.getDamager();
             Player vitim = (Player) e.getEntity();

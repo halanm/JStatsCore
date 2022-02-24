@@ -2,7 +2,9 @@ package com.driga.jstatscore.prototype;
 
 import com.driga.jstatscore.api.prototype.Attribute;
 import com.driga.jstatscore.api.prototype.Subject;
+import com.driga.jstatscore.nbt.NbtHandler;
 import com.driga.jstatscore.provider.SubjectProvider;
+import com.driga.jstatscore.util.StatsUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -51,6 +53,15 @@ public class JSubject implements Subject {
     @Override
     public void setAttributeLevel(String key, Double value){
         attributesLevel.put(key, value);
+        NbtHandler.getInstance().setValue(getPlayer(), key, value);
+        if(key.equals("CONSTITUTION")){
+            NbtHandler.getInstance().setValue(getPlayer(), "HP_MAX", SubjectProvider.getInstance().getAttributeValue(this, "CONSTITUTION"));
+            NbtHandler.getInstance().setValue(getPlayer(), "HP_REGEN", getAttributeLevel("CONSTITUTION") * StatsUtils.getInstance().getRegenHP());
+        }
+        if(key.equals("ENERGY")){
+            NbtHandler.getInstance().setValue(getPlayer(), "SP_MAX", SubjectProvider.getInstance().getAttributeValue(this, "ENERGY"));
+            NbtHandler.getInstance().setValue(getPlayer(), "SP_REGEN", getAttributeLevel("ENERGY") * StatsUtils.getInstance().getRegenSP());
+        }
     }
 
     @Override
@@ -60,7 +71,7 @@ public class JSubject implements Subject {
             current = attributesLevel.get(key);
         }
         Double now = current + value;
-        attributesLevel.put(key, now);
+        setAttributeLevel(key, now);
     }
 
     @Override
@@ -70,23 +81,24 @@ public class JSubject implements Subject {
             current = attributesLevel.get(key);
         }
         Double now = current - value;
-        attributesLevel.put(key, now);
+        setAttributeLevel(key, now);
     }
 
     @Override
     public void setTrainingPoints(Double value){
         trainingPoints = value;
+        NbtHandler.getInstance().setValue(getPlayer(), "TP", value);
     }
 
     @Override
     public void addTrainingPoints(Double value){
         Double now = trainingPoints + value;
-        trainingPoints = now;
+        setTrainingPoints(now);
     }
 
     @Override
     public void removeTrainingPoints(Double value){
         Double now = trainingPoints - value;
-        trainingPoints = now;
+        setTrainingPoints(now);
     }
 }

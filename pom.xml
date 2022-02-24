@@ -41,6 +41,13 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/libs/MagicSpells-3.5-Release.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>me.dpohvar.powernbt</groupId>
+            <artifactId>powernbt</artifactId>
+            <version>0.8.9.2</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/PowerNBT-0.8.9.2.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <build>

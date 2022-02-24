@@ -1,5 +1,5 @@
 name: JStatsCore
-version: '${project.version}'
+version: 1.0
 main: com.driga.jstatscore.JStatsCore
 authors: [ Jusai ]
 website: https://github.com/Rodriga0

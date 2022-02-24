@@ -4,6 +4,7 @@ import com.driga.jstatscore.api.JStatsCoreAPI;
 import com.driga.jstatscore.api.prototype.Subject;
 import com.driga.jstatscore.booster.BoosterManager;
 import com.driga.jstatscore.factory.SubjectFactory;
+import com.driga.jstatscore.nbt.NbtHandler;
 import com.driga.jstatscore.provider.SubjectProvider;
 import com.driga.jstatscore.util.StatsUtils;
 import com.nisovin.magicspells.events.MagicSpellsEntityDamageByEntityEvent;
@@ -45,6 +46,7 @@ public class EventListener implements Listener {
         StatsUtils.getInstance().startUpdateStats(subject);
         StatsUtils.getInstance().startRecoverTask(subject);
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "modelremove " + player.getName());
+        NbtHandler.getInstance().setAllValues(player);
     }
 
     @EventHandler

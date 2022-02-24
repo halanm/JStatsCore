@@ -64,8 +64,8 @@ public class SubjectStatsInventory extends InventorySustainer {
         ENERGY.getName() + ": " + "§6" + String.format("%.0f", SubjectProvider.getInstance().getAttributeValue(subject, "ENERGY")),
         "§aVida: " + "§6" + String.format("%.0f", SubjectProvider.getInstance().getAttributeValue(subject, "CONSTITUTION")),
         "§bDefesa: " + "§6" + String.format("%.0f", SubjectProvider.getInstance().getAttributeValue(subject, "DEFENSE")),
-        "§2Regeneração - §aVida: " + "§6" + String.format("%.0f", StatsUtils.getInstance().getRegenHP()),
-        "§2Regeneração - " + ENERGY.getName() + ": " + "§6" + String.format("%.0f", StatsUtils.getInstance().getRegenHP()))
+        "§2Regeneração - §aVida: " + "§6" + String.format("%.0f", subject.getAttributeLevel("CONSTITUTION") * StatsUtils.getInstance().getRegenHP()),
+        "§2Regeneração - " + ENERGY.getName() + ": " + "§6" + String.format("%.0f", subject.getAttributeLevel("ENERGY") * StatsUtils.getInstance().getRegenSP()))
         .hasEnchant(false),
                 e ->{});
 
@@ -224,8 +224,8 @@ public class SubjectStatsInventory extends InventorySustainer {
                         ENERGY.getName() + ": " + "§6" + String.format("%.0f", SubjectProvider.getInstance().getAttributeValue(subject, "ENERGY")),
                         "§aVida: " + "§6" + String.format("%.0f", SubjectProvider.getInstance().getAttributeValue(subject, "CONSTITUTION")),
                         "§bDefesa: " + "§6" + String.format("%.0f", SubjectProvider.getInstance().getAttributeValue(subject, "DEFENSE")),
-                        "§2Regeneração - §aVida: " + "§6" + String.format("%.0f", StatsUtils.getInstance().getRegenHP()),
-                        "§2Regeneração - " + ENERGY.getName() + ": " + "§6" + String.format("%.0f", StatsUtils.getInstance().getRegenHP()))
+                        "§2Regeneração - §aVida: " + "§6" + String.format("%.0f", subject.getAttributeLevel("CONSTITUTION") * StatsUtils.getInstance().getRegenHP()),
+                        "§2Regeneração - " + ENERGY.getName() + ": " + "§6" + String.format("%.0f", subject.getAttributeLevel("ENERGY") * StatsUtils.getInstance().getRegenSP()))
                         .hasEnchant(false).build());
 
         player.getOpenInventory().getTopInventory().setItem(11,

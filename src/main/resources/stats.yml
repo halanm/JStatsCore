@@ -1,0 +1,31 @@
+Recover:
+  Time: 5
+  HP: 200
+  SP: 200
+
+Stats:
+  STRENGTH:
+    Name: "Força"
+    Multiplier: 1.0
+    MaxValue: 500
+    CostMultiplier: 1.0
+  MAGIC_POWER:
+    Name: "Poder Magico"
+    Multiplier: 1.0
+    MaxValue: 500
+    CostMultiplier: 1.0
+  ENERGY:
+    Name: "Energia"
+    Multiplier: 1.0
+    MaxValue: 500
+    CostMultiplier: 1.0
+  CONSTITUTION:
+    Name: "Vida"
+    Multiplier: 1.0
+    MaxValue: 500
+    CostMultiplier: 1.0
+  DEFENSE:
+    Name: "Defesa"
+    Multiplier: 1.0
+    MaxValue: 500
+    CostMultiplier: 1.0

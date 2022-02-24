@@ -1,0 +1,18 @@
+Forms:
+  Forma_Exemplo:
+    Name: "Forma exemplo"
+    Duration: 30
+    Cooldown: 120
+    Model: "ModeloExemplo"
+    Permission: "exform.use"
+    EnergyCost: 50
+    Multipliers:
+      STRENGTH: 0.2
+      MAGICPOWER: 0.2
+      ENERGY: 0.2
+      CONSTITUTION: 0.2
+      DEFENSE: 0.2
+    Item:
+      ItemId: '35:1'
+      ItemName: '&6Nome do Item'
+      ItemLore: '&6Linha1|&bLinha2'

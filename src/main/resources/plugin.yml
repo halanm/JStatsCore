@@ -1,0 +1,11 @@
+name: JStatsCore
+version: '${project.version}'
+main: com.driga.jstatscore.JStatsCore
+authors: [ Jusai ]
+website: https://github.com/Rodriga0
+commands:
+  jsc:
+  stats:
+    aliases: [ stat, atributos, atributo ]
+  forms:
+    aliases: [ form, formas, forma, modos, modo ]

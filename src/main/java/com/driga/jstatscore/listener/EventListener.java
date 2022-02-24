@@ -9,6 +9,7 @@ import com.driga.jstatscore.util.StatsUtils;
 import com.nisovin.magicspells.events.MagicSpellsEntityDamageByEntityEvent;
 import com.nisovin.magicspells.events.SpellApplyDamageEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -48,9 +49,13 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent e){
+        boolean isSkill = false;
         if(e.getDamager() instanceof Player && playerList.contains((Player) e.getDamager())){
             playerList.remove((Player) e.getDamager());
             return;
+        }
+        if(e.getCause().equals(EntityDamageEvent.DamageCause.CUSTOM)){
+            isSkill = true;
         }
         if(e.getDamager() instanceof Player && e.getEntity() instanceof Player){
             Player damager = (Player) e.getDamager();
@@ -61,7 +66,11 @@ public class EventListener implements Listener {
             double def = SubjectProvider.getInstance().getAttributeValue(subjectVitim, "DEFENSE");
             double dmg = e.getDamage();
             e.setDamage(0);
-            dmg = (dmg + str) - def;
+            if(isSkill){
+                dmg = dmg - def;
+            }else{
+                dmg = (dmg + str) - def;
+            }
             if(dmg < 0){
                 dmg = 0;
             }
@@ -77,6 +86,16 @@ public class EventListener implements Listener {
             Subject subjectDamager = api.getSubjects().find(damager.getUniqueId());
             double dmg = e.getDamage();
             e.setDamage(0);
+            if(isSkill){
+                Damageable damageable = (Damageable) e.getEntity();
+                damageable.damage(0, damager);
+                double health = damageable.getHealth();
+                health -= dmg;
+                if(health < 0){
+                    health = 0;
+                }
+                damageable.setHealth(health);
+            }
             dmg = dmg + SubjectProvider.getInstance().getAttributeValue(subjectDamager, "STRENGTH");
             e.setDamage(dmg);
         }

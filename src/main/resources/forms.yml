@@ -8,7 +8,7 @@ Forms:
     EnergyCost: 50
     Multipliers:
       STRENGTH: 0.2
-      MAGICPOWER: 0.2
+      MAGIC_POWER: 0.2
       ENERGY: 0.2
       CONSTITUTION: 0.2
       DEFENSE: 0.2

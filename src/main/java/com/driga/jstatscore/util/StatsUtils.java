@@ -35,26 +35,6 @@ public class StatsUtils {
         return StatsUtils.statsUtils;
     }
 
-    public void updateActionBar(Player player, String message) {
-        TextComponent textComponent = new TextComponent(message);
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, textComponent);
-    }
-
-    public void startUpdateStats(Subject subject){
-        new BukkitRunnable() {
-            public void run() {
-                if (subject.getPlayer() == null || !subject.getPlayer().isOnline()) {
-                    this.cancel();
-                }else{
-                    double hp = subject.getAttributeLevel("HP");
-                    double sp = subject.getAttributeLevel("SP");;
-                    updateActionBar(subject.getPlayer(), "§4❤ " + String.format("%.0f", (double) Math.round(hp))
-                            + "                 §b❖ " + String.format("%.0f", (double) Math.round(sp)) + "");
-                }
-            }
-        }.runTaskTimer(JStatsCore.getInstance(), 10L, 10L);
-    }
-
     public void startRecoverTask(Subject subject){
         Long time = Long.valueOf(section.getInt("Time") * 20);
         new BukkitRunnable() {

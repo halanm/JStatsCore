@@ -8,6 +8,7 @@ import com.driga.jstatscore.api.prototype.Subject;
 import com.driga.jstatscore.event.SubjectChangeAttributeLevelEvent;
 import com.driga.jstatscore.inventory.item.ItemBuilder;
 import com.driga.jstatscore.inventory.sustainer.InventorySustainer;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -38,6 +39,7 @@ public class SubjectFormsInventory extends InventorySustainer {
                     player.performCommand("form " + formName);
                     player.closeInventory();
                 });
+                slot++;
             }
         }
     }

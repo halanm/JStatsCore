@@ -1,5 +1,6 @@
 package com.driga.jstatscore.listener;
 
+import com.driga.jstatscore.JStatsCore;
 import com.driga.jstatscore.api.JStatsCoreAPI;
 import com.driga.jstatscore.api.prototype.Subject;
 import com.driga.jstatscore.booster.BoosterManager;
@@ -18,6 +19,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,9 +45,14 @@ public class EventListener implements Listener {
         }else{
             subject = api.getSubjects().find(player.getUniqueId());
         }
-        StatsUtils.getInstance().startUpdateStats(subject);
         StatsUtils.getInstance().startRecoverTask(subject);
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "modelremove " + player.getName());
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "modelapply none " + player.getName());
+            }
+        }.runTaskLater(JStatsCore.getInstance(), 10);
         NbtHandler.getInstance().setAllValues(player);
     }
 

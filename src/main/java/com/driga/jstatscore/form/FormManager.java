@@ -39,8 +39,7 @@ public class FormManager {
         formMap.put(subject, form);
         durationMap.put(subject, millis);
         CooldownManager.getInstance().applyCooldown(subject, cooldown, form.getName());
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "modelapply " + form.getModel() + " " +
-                subject.getPlayer().getName());
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "modelapply " + form.getModel() + " " + subject.getPlayer().getName());
     }
 
     public Form getUsingForm(Subject subject){
@@ -66,8 +65,7 @@ public class FormManager {
                     long millis = durationMap.get(subject);
                     if(millis <= current){
                         if(subject.getPlayer() != null && subject.getPlayer().isOnline()){
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "modelremove " +
-                                    subject.getPlayer().getName());
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "modelapply none " + subject.getPlayer().getName());
                         }
                         formMap.remove(subject);
                         durationMap.remove(subject);
@@ -87,8 +85,7 @@ public class FormManager {
                 double now = current - form.getEnergyCost();
                 subject.setAttributeLevel("SP", now);
             }else{
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "modelremove " +
-                        subject.getPlayer().getName());
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "modelapply none " + subject.getPlayer().getName());
                 formMap.remove(subject);
                 durationMap.remove(subject);
             }

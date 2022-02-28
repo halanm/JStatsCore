@@ -33,6 +33,15 @@ public class SubjectProvider {
         return value;
     }
 
+    public double getSpeedValue(Subject subject){
+        double level = subject.getAttributeLevel("STRENGTH");
+        Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("STRENGTH");
+        double max = attribute.getMaxValue();
+        double speed = 0.2;
+        double toAdd = rot(max, 0.8, level);
+        return speed + toAdd;
+    }
+
     public Map<String, Double> fromString(String string) {
         Map<String, Double> map = new HashMap<>();
         if (string != null) {
@@ -53,5 +62,11 @@ public class SubjectProvider {
         map.put("HP", 1.0 * JStatsCoreAPI.getInstance().getAttributes().find("CONSTITUTION").getMultiplier());
         map.put("SP", 1.0 * JStatsCoreAPI.getInstance().getAttributes().find("ENERGY").getMultiplier());
         return map;
+    }
+
+    private Double rot(Double var1, Double var2, Double var3){
+        double p0 = var2 * var3;
+        double p1 = p0 / var1;
+        return p1;
     }
 }

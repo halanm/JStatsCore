@@ -52,6 +52,12 @@ public class JSubject implements Subject {
 
     @Override
     public void setAttributeLevel(String key, Double value){
+        if(key.equals("HP") && value > SubjectProvider.getInstance().getAttributeValue(this, "CONSTITUTION")){
+            value = SubjectProvider.getInstance().getAttributeValue(this, "CONSTITUTION");
+        }
+        if(key.equals("SP") && value > SubjectProvider.getInstance().getAttributeValue(this, "ENERGY")){
+            value = SubjectProvider.getInstance().getAttributeValue(this, "ENERGY");
+        }
         attributesLevel.put(key, value);
         NbtHandler.getInstance().setValue(getPlayer(), key, value);
         if(key.equals("CONSTITUTION")){

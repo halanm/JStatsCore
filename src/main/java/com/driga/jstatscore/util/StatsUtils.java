@@ -70,6 +70,18 @@ public class StatsUtils {
         }.runTaskTimer(JStatsCore.getInstance(), time, time);
     }
 
+    public void startSpeedTask(Subject subject){
+        new BukkitRunnable() {
+            public void run() {
+                if (subject.getPlayer() == null || !subject.getPlayer().isOnline()) {
+                    this.cancel();
+                }else{
+                    subject.getPlayer().setWalkSpeed((float) SubjectProvider.getInstance().getSpeedValue(subject));
+                }
+            }
+        }.runTaskTimer(JStatsCore.getInstance(), 0, 20);
+    }
+
     public Double getRegenHP(){
         return section.getDouble("HP");
     }

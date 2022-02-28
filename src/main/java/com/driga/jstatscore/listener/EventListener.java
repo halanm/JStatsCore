@@ -7,16 +7,21 @@ import com.driga.jstatscore.booster.BoosterManager;
 import com.driga.jstatscore.factory.SubjectFactory;
 import com.driga.jstatscore.nbt.NbtHandler;
 import com.driga.jstatscore.provider.SubjectProvider;
+import com.driga.jstatscore.util.MagicSpellsUtil;
 import com.driga.jstatscore.util.StatsUtils;
 import com.nisovin.magicspells.events.MagicSpellsEntityDamageByEntityEvent;
 import com.nisovin.magicspells.events.SpellApplyDamageEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Damageable;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -33,8 +38,6 @@ public class EventListener implements Listener {
         api = JStatsCoreAPI.getInstance();
     }
 
-    private List<Player> playerList = new ArrayList<>();
-
     @EventHandler
     public void onJoin(PlayerJoinEvent event){
         Player player = event.getPlayer();
@@ -46,6 +49,7 @@ public class EventListener implements Listener {
             subject = api.getSubjects().find(player.getUniqueId());
         }
         StatsUtils.getInstance().startRecoverTask(subject);
+        StatsUtils.getInstance().startSpeedTask(subject);
 
         new BukkitRunnable() {
             @Override
@@ -59,14 +63,14 @@ public class EventListener implements Listener {
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent e){
         boolean isSkill = false;
-        if(e.getDamager() instanceof Player && playerList.contains((Player) e.getDamager())){
-            playerList.remove((Player) e.getDamager());
+        if(e.getDamager() instanceof Player && MagicSpellsUtil.getInstance().playerList.contains((Player) e.getDamager())){
+            MagicSpellsUtil.getInstance().playerList.remove((Player) e.getDamager());
             return;
         }
         if(e.getCause().equals(EntityDamageEvent.DamageCause.CUSTOM)){
             isSkill = true;
         }
-        if(e.getDamager() instanceof Player && e.getEntity() instanceof Player){
+        if(e.getDamager() instanceof Player && e.getEntity() instanceof Player && ((Player) e.getEntity()).getGameMode() == GameMode.SURVIVAL){
             Player damager = (Player) e.getDamager();
             Player vitim = (Player) e.getEntity();
             Subject subjectDamager = api.getSubjects().find(damager.getUniqueId());
@@ -85,7 +89,7 @@ public class EventListener implements Listener {
             }
             double life = subjectVitim.getAttributeLevel("HP") - dmg;
             if(life <= 0){
-                vitim.setHealth(0);
+                vitim.damage(20, e.getDamager());
                 life = SubjectProvider.getInstance().getAttributeValue(subjectVitim, "CONSTITUTION");
             }
             subjectVitim.setAttributeLevel("HP", life);
@@ -97,18 +101,12 @@ public class EventListener implements Listener {
             e.setDamage(0);
             if(isSkill){
                 Damageable damageable = (Damageable) e.getEntity();
-                damageable.damage(0, damager);
-                double health = damageable.getHealth();
-                health -= dmg;
-                if(health < 0){
-                    health = 0;
-                }
-                damageable.setHealth(health);
+                damageable.damage(dmg, damager);
             }
             dmg = dmg + SubjectProvider.getInstance().getAttributeValue(subjectDamager, "STRENGTH");
             e.setDamage(dmg);
         }
-        if(!(e.getDamager() instanceof Player) && e.getEntity() instanceof Player){
+        if(!(e.getDamager() instanceof Player) && e.getEntity() instanceof Player && ((Player) e.getEntity()).getGameMode() == GameMode.SURVIVAL){
             Player vitim = (Player) e.getEntity();
             Subject subjectVitim = api.getSubjects().find(vitim.getUniqueId());
             double def = SubjectProvider.getInstance().getAttributeValue(subjectVitim, "DEFENSE");
@@ -119,55 +117,42 @@ public class EventListener implements Listener {
             double life = subjectVitim.getAttributeLevel("HP") - dmg;
             e.setDamage(0);
             if(life <= 0){
-                vitim.setHealth(0);
+                e.setDamage(vitim.getHealth());
                 life = SubjectProvider.getInstance().getAttributeValue(subjectVitim, "CONSTITUTION");
             }
             subjectVitim.setAttributeLevel("HP", life);
 
         }
-    }
-
-    @EventHandler
-    public void onSpell(SpellApplyDamageEvent e){
-        String attr = "STRENGTH";
-        if(e.getCause().equals(EntityDamageEvent.DamageCause.MAGIC)){
-            attr = "MAGIC_POWER";
-        }
-        if(e.getTarget() instanceof Player){
-            Player damager = (Player) e.getCaster();
-            Player vitim = (Player) e.getTarget();
+        if(e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player && e.getEntity() instanceof Player
+                && ((Player) e.getEntity()).getGameMode() == GameMode.SURVIVAL){
+            Player damager = (Player) ((Projectile) e.getDamager()).getShooter();
+            Player vitim = (Player) e.getEntity();
             Subject subjectDamager = api.getSubjects().find(damager.getUniqueId());
             Subject subjectVitim = api.getSubjects().find(vitim.getUniqueId());
-            double str = SubjectProvider.getInstance().getAttributeValue(subjectDamager, attr);
             double def = SubjectProvider.getInstance().getAttributeValue(subjectVitim, "DEFENSE");
-            double dmg = e.getDamage();
-            dmg = (dmg + str) - def;
+            double dmg = subjectDamager.getAttributeLevel("STRENGTH") * api.getAttributes().find("DEFENSE").getMultiplier();
+            dmg = dmg - def;
             if(dmg < 0){
                 dmg = 0;
-            }else{
-                playerList.add(e.getCaster());
             }
             double life = subjectVitim.getAttributeLevel("HP") - dmg;
-            life = life + e.getDamage();
             if(life <= 0){
-                vitim.setHealth(0);
+                e.setDamage(vitim.getHealth());
                 life = SubjectProvider.getInstance().getAttributeValue(subjectVitim, "CONSTITUTION");
             }
             subjectVitim.setAttributeLevel("HP", life);
         }
-        if(!(e.getTarget() instanceof Player)){
-            Player damager = (Player) e.getCaster();
+        if(e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player && !(e.getEntity() instanceof Player)){
+            Player damager = (Player) ((Projectile) e.getDamager()).getShooter();
             Subject subjectDamager = api.getSubjects().find(damager.getUniqueId());
-            double dmg = e.getDamage();
-            double health = e.getTarget().getHealth() + dmg;
-            dmg = dmg * SubjectProvider.getInstance().getAttributeValue(subjectDamager, attr);
-            health = health - dmg;
+            double dmg = subjectDamager.getAttributeLevel("STRENGTH") * api.getAttributes().find("DEFENSE").getMultiplier();
+            Damageable damageable = (Damageable) e.getEntity();
+            double health = damageable.getHealth();
+            health -= dmg;
             if(health < 0){
                 health = 0;
-            }else{
-                playerList.add(e.getCaster());
             }
-            e.getTarget().setHealth(health);
+            damageable.setHealth(health);
         }
     }
 
@@ -189,7 +174,7 @@ public class EventListener implements Listener {
                 e.setDamage(0);
                 double life = subject.getAttributeLevel("HP") - dmg;
                 if(life <= 0){
-                    vitim.setHealth(0);
+                    e.setDamage(vitim.getHealth());
                     life = SubjectProvider.getInstance().getAttributeValue(subject, "CONSTITUTION");
                 }
                 subject.setAttributeLevel("HP", life);
@@ -204,7 +189,7 @@ public class EventListener implements Listener {
                 double life = subject.getAttributeLevel("HP") - 200;
                 e.setDamage(0);
                 if(life <= 0){
-                    vitim.setHealth(0);
+                    e.setDamage(vitim.getHealth());
                     life = SubjectProvider.getInstance().getAttributeValue(subject, "CONSTITUTION");
                 }
                 subject.setAttributeLevel("HP", life);

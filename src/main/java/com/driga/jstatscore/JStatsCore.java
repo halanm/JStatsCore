@@ -13,8 +13,11 @@ import com.driga.jstatscore.form.FormManager;
 import com.driga.jstatscore.inventory.sustainer.InventorySustainer;
 import com.driga.jstatscore.listener.CustomEventListener;
 import com.driga.jstatscore.listener.EventListener;
+import com.driga.jstatscore.listener.MagicSpellsEventListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.logging.Level;
 
 public final class JStatsCore extends JavaPlugin {
 
@@ -57,6 +60,9 @@ public final class JStatsCore extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new EventListener() , this);
         Bukkit.getPluginManager().registerEvents(new CustomEventListener() , this);
+        if(getServer().getPluginManager().getPlugin("MagicSpells") != null){
+            Bukkit.getPluginManager().registerEvents(new MagicSpellsEventListener() , this);
+        }
 
         getCommand("stats").setExecutor(new StatCommand());
         getCommand("forms").setExecutor(new FormCommand());

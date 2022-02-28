@@ -9,6 +9,7 @@ import com.driga.jstatscore.event.SubjectChangeAttributeLevelEvent;
 import com.driga.jstatscore.event.SubjectReceiveTpEvent;
 import com.driga.jstatscore.factory.AttributeFactory;
 import com.driga.jstatscore.factory.FormFactory;
+import com.driga.jstatscore.provider.SubjectProvider;
 import com.driga.jstatscore.util.StatsUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -37,6 +38,27 @@ public class MainComand implements CommandExecutor {
             }
             sender.sendMessage(commandList);
             return false;
+        }
+        if(args.length == 2){
+            switch (args[0]){
+                case "statsee": {
+                    Player player = Bukkit.getPlayer(args[1]);
+                    if (player != null && player.isOnline()) {
+                        Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                        sender.sendMessage(new String[]{
+                                "§bStatus de §a" + player.getName(),
+                                JStatsCoreAPI.getInstance().getAttributes().find("STRENGTH").getName() + ": §6" + subject.getAttributeLevel("STRENGTH"),
+                                JStatsCoreAPI.getInstance().getAttributes().find("MAGIC_POWER").getName() + ": §6" + subject.getAttributeLevel("MAGIC_POWER"),
+                                JStatsCoreAPI.getInstance().getAttributes().find("ENERGY").getName() + ": §6" + subject.getAttributeLevel("ENERGY"),
+                                JStatsCoreAPI.getInstance().getAttributes().find("CONSTITUTION").getName() + ": §6" + subject.getAttributeLevel("CONSTITUTION"),
+                                JStatsCoreAPI.getInstance().getAttributes().find("DEFENSE").getName() + ": §6" + subject.getAttributeLevel("DEFENSE")
+                        });
+                    } else {
+                        sender.sendMessage("§cPlayer offline");
+                    }
+                    return false;
+                }
+            }
         }
         if(args.length == 3){
             switch (args[0]) {
@@ -81,12 +103,11 @@ public class MainComand implements CommandExecutor {
                             Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("CONSTITUTION");
                             Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
                             double con = subject.getAttributeLevel("CONSTITUTION") + quantity;
-                            if(con <= attribute.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, attribute, con);
-                                sender.sendMessage("§aAção Concluida");
-                            }else{
-                                sender.sendMessage("§cEssa quantia excede o limite");
+                            if(con > attribute.getMaxValue()){
+                                con = attribute.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, con);
+                            sender.sendMessage("§aAção Concluida");
                         }else{
                             sender.sendMessage("§cPlayer offline");
                         }
@@ -97,12 +118,11 @@ public class MainComand implements CommandExecutor {
                             Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("STRENGTH");
                             Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
                             double str = subject.getAttributeLevel("STRENGTH") + quantity;
-                            if(str <= attribute.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, attribute, str);
-                                sender.sendMessage("§aAção Concluida");
-                            }else{
-                                sender.sendMessage("§cEssa quantia excede o limite");
+                            if(str > attribute.getMaxValue()){
+                                str = attribute.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, str);
+                            sender.sendMessage("§aAção Concluida");
                         }else{
                             sender.sendMessage("§cPlayer offline");
                         }
@@ -113,12 +133,11 @@ public class MainComand implements CommandExecutor {
                             Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("DEFENSE");
                             Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
                             double def = subject.getAttributeLevel("DEFENSE") + quantity;
-                            if(def <= attribute.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, attribute, def);
-                                sender.sendMessage("§aAção Concluida");
-                            }else{
-                                sender.sendMessage("§cEssa quantia excede o limite");
+                            if(def > attribute.getMaxValue()){
+                                def = attribute.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, def);
+                            sender.sendMessage("§aAção Concluida");
                         }else{
                             sender.sendMessage("§cPlayer offline");
                         }
@@ -129,12 +148,11 @@ public class MainComand implements CommandExecutor {
                             Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("ENERGY");
                             Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
                             double energy = subject.getAttributeLevel("ENERGY") + quantity;
-                            if(energy <= attribute.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, attribute, energy);
-                                sender.sendMessage("§aAção Concluida");
-                            }else{
-                                sender.sendMessage("§cEssa quantia excede o limite");
+                            if(energy > attribute.getMaxValue()){
+                                energy = attribute.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, energy);
+                            sender.sendMessage("§aAção Concluida");
                         }else{
                             sender.sendMessage("§cPlayer offline");
                         }
@@ -145,12 +163,11 @@ public class MainComand implements CommandExecutor {
                             Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("MAGIC_POWER");
                             Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
                             double mp = subject.getAttributeLevel("MAGIC_POWER") + quantity;
-                            if(mp <= attribute.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, attribute, mp);
-                                sender.sendMessage("§aAção Concluida");
-                            }else{
-                                sender.sendMessage("§cEssa quantia excede o limite");
+                            if(mp > attribute.getMaxValue()){
+                                mp = attribute.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, mp);
+                            sender.sendMessage("§aAção Concluida");
                         }else{
                             sender.sendMessage("§cPlayer offline");
                         }
@@ -161,39 +178,36 @@ public class MainComand implements CommandExecutor {
                             Attribute CONSTITUTION = JStatsCoreAPI.getInstance().getAttributes().find("CONSTITUTION");
                             Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
                             double con = subject.getAttributeLevel("CONSTITUTION") + quantity;
-                            if(con <= CONSTITUTION.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, CONSTITUTION, con);
-                            }else{
-                                sender.sendMessage("§cO Stat con não foi alterado pois essa quantia excede o limite");
+                            if(con > CONSTITUTION.getMaxValue()){
+                                con = CONSTITUTION.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, CONSTITUTION, con);
                             Attribute STRENGTH = JStatsCoreAPI.getInstance().getAttributes().find("STRENGTH");
                             double str = subject.getAttributeLevel("STRENGTH") + quantity;
-                            if(str <= STRENGTH.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, STRENGTH, str);
-                            }else{
-                                sender.sendMessage("§cO Stat str não foi alterado pois essa quantia excede o limite");
+                            if(str > STRENGTH.getMaxValue()){
+                                str = STRENGTH.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, STRENGTH, str);
                             Attribute DEFENSE = JStatsCoreAPI.getInstance().getAttributes().find("DEFENSE");
                             double def = subject.getAttributeLevel("DEFENSE") + quantity;
-                            if(def <= DEFENSE.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, DEFENSE, def);
-                            }else{
-                                sender.sendMessage("§cO Stat def não foi alterado pois essa quantia excede o limite");
+                            if(def > DEFENSE.getMaxValue()){
+                                def = DEFENSE.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, DEFENSE, def);
+
                             Attribute ENERGY = JStatsCoreAPI.getInstance().getAttributes().find("ENERGY");
                             double energy = subject.getAttributeLevel("ENERGY") + quantity;
-                            if(energy <= ENERGY.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, ENERGY, energy);
-                            }else{
-                                sender.sendMessage("§cO Stat energy não foi alterado pois essa quantia excede o limite");
+                            if(energy > ENERGY.getMaxValue()){
+                                energy = ENERGY.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, ENERGY, energy);
+
                             Attribute MP = JStatsCoreAPI.getInstance().getAttributes().find("MAGIC_POWER");
                             double mp = subject.getAttributeLevel("MAGIC_POWER") + quantity;
-                            if(mp <= MP.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, MP, mp);
-                            }else{
-                                sender.sendMessage("§cO Stat mp não foi alterado pois essa quantia excede o limite");
+                            if(mp > MP.getMaxValue()){
+                                mp = MP.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, MP, mp);
                             sender.sendMessage("§aAção Concluida");
                         }else{
                             sender.sendMessage("§cPlayer offline");
@@ -217,12 +231,11 @@ public class MainComand implements CommandExecutor {
                             Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("CONSTITUTION");
                             Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
                             double con = quantity;
-                            if(con <= attribute.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, attribute, con);
-                                sender.sendMessage("§aAção Concluida");
-                            }else{
-                                sender.sendMessage("§cEssa quantia excede o limite");
+                            if(con > attribute.getMaxValue()){
+                                con = attribute.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, con);
+                            sender.sendMessage("§aAção Concluida");
                         }else{
                             sender.sendMessage("§cPlayer offline");
                         }
@@ -233,12 +246,11 @@ public class MainComand implements CommandExecutor {
                             Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("STRENGTH");
                             Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
                             double str = quantity;
-                            if(str <= attribute.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, attribute, str);
-                                sender.sendMessage("§aAção Concluida");
-                            }else{
-                                sender.sendMessage("§cEssa quantia excede o limite");
+                            if(str > attribute.getMaxValue()){
+                                str = attribute.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, str);
+                            sender.sendMessage("§aAção Concluida");
                         }else{
                             sender.sendMessage("§cPlayer offline");
                         }
@@ -249,12 +261,11 @@ public class MainComand implements CommandExecutor {
                             Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("DEFENSE");
                             Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
                             double def = quantity;
-                            if(def <= attribute.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, attribute, def);
-                                sender.sendMessage("§aAção Concluida");
-                            }else{
-                                sender.sendMessage("§cEssa quantia excede o limite");
+                            if(def > attribute.getMaxValue()){
+                                def = attribute.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, def);
+                            sender.sendMessage("§aAção Concluida");
                         }else{
                             sender.sendMessage("§cPlayer offline");
                         }
@@ -265,12 +276,11 @@ public class MainComand implements CommandExecutor {
                             Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("ENERGY");
                             Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
                             double energy = quantity;
-                            if(energy <= attribute.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, attribute, energy);
-                                sender.sendMessage("§aAção Concluida");
-                            }else{
-                                sender.sendMessage("§cEssa quantia excede o limite");
+                            if(energy > attribute.getMaxValue()){
+                                energy = attribute.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, energy);
+                            sender.sendMessage("§aAção Concluida");
                         }else{
                             sender.sendMessage("§cPlayer offline");
                         }
@@ -281,12 +291,11 @@ public class MainComand implements CommandExecutor {
                             Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("MAGIC_POWER");
                             Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
                             double mp = quantity;
-                            if(mp <= attribute.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, attribute, mp);
-                                sender.sendMessage("§aAção Concluida");
-                            }else{
-                                sender.sendMessage("§cEssa quantia excede o limite");
+                            if(mp > attribute.getMaxValue()){
+                                mp = attribute.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, mp);
+                            sender.sendMessage("§aAção Concluida");
                         }else{
                             sender.sendMessage("§cPlayer offline");
                         }
@@ -297,39 +306,95 @@ public class MainComand implements CommandExecutor {
                             Attribute CONSTITUTION = JStatsCoreAPI.getInstance().getAttributes().find("CONSTITUTION");
                             Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
                             double con = quantity;
-                            if(con <= CONSTITUTION.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, CONSTITUTION, con);
-                            }else{
-                                sender.sendMessage("§cO Stat con não foi alterado pois essa quantia excede o limite");
+                            if(con > CONSTITUTION.getMaxValue()){
+                                con = CONSTITUTION.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, CONSTITUTION, con);
                             Attribute STRENGTH = JStatsCoreAPI.getInstance().getAttributes().find("STRENGTH");
                             double str = quantity;
-                            if(str <= STRENGTH.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, STRENGTH, str);
-                            }else{
-                                sender.sendMessage("§cO Stat str não foi alterado pois essa quantia excede o limite");
+                            if(str > STRENGTH.getMaxValue()){
+                                str = STRENGTH.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, STRENGTH, str);
                             Attribute DEFENSE = JStatsCoreAPI.getInstance().getAttributes().find("DEFENSE");
                             double def = quantity;
-                            if(def <= DEFENSE.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, DEFENSE, def);
-                            }else{
-                                sender.sendMessage("§cO Stat def não foi alterado pois essa quantia excede o limite");
+                            if(def > DEFENSE.getMaxValue()){
+                                def = DEFENSE.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, DEFENSE, def);
+
                             Attribute ENERGY = JStatsCoreAPI.getInstance().getAttributes().find("ENERGY");
                             double energy = quantity;
-                            if(energy <= ENERGY.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, ENERGY, energy);
-                            }else{
-                                sender.sendMessage("§cO Stat energy não foi alterado pois essa quantia excede o limite");
+                            if(energy > ENERGY.getMaxValue()){
+                                energy = ENERGY.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, ENERGY, energy);
+
                             Attribute MP = JStatsCoreAPI.getInstance().getAttributes().find("MAGIC_POWER");
                             double mp = quantity;
-                            if(mp <= MP.getMaxValue()){
-                                new SubjectChangeAttributeLevelEvent(subject, MP, mp);
-                            }else{
-                                sender.sendMessage("§cO Stat mp não foi alterado pois essa quantia excede o limite");
+                            if(mp > MP.getMaxValue()){
+                                mp = MP.getMaxValue();
                             }
+                            new SubjectChangeAttributeLevelEvent(subject, MP, mp);
+                            sender.sendMessage("§aAção Concluida");
+                        }else{
+                            sender.sendMessage("§cPlayer offline");
+                        }
+                        return false;
+                    }
+                    default:{
+                        sender.sendMessage("§cEsse stat não existe");
+                        return false;
+                    }
+                }
+            }
+
+            if(args[0].equals("heal")){
+                Player player = Bukkit.getPlayer(args[1]);
+                String stat = args[2];
+                int quantity = Integer.parseInt(args[3]);
+                switch (stat.toLowerCase()){
+                    case "hp":{
+                        if(player != null && player.isOnline()){
+                            Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                            double life = subject.getAttributeLevel("HP") + quantity;
+                            if(life > SubjectProvider.getInstance().getAttributeValue(subject, "CONSTITUTION")){
+                                life = SubjectProvider.getInstance().getAttributeValue(subject, "CONSTITUTION");
+                            }
+                            subject.setAttributeLevel("HP", life);
+                            sender.sendMessage("§aAção Concluida");
+                        }else{
+                            sender.sendMessage("§cPlayer offline");
+                        }
+                        return false;
+                    }
+                    case "sp":{
+                        if(player != null && player.isOnline()){
+                            Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                            double en = subject.getAttributeLevel("SP") + quantity;
+                            if(en > SubjectProvider.getInstance().getAttributeValue(subject, "ENERGY")){
+                                en = SubjectProvider.getInstance().getAttributeValue(subject, "ENERGY");
+                            }
+                            subject.setAttributeLevel("SP", en);
+                            sender.sendMessage("§aAção Concluida");
+                        }else{
+                            sender.sendMessage("§cPlayer offline");
+                        }
+                        return false;
+                    }
+                    case "all":{
+                        if(player != null && player.isOnline()){
+                            Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                            double life = subject.getAttributeLevel("HP") + quantity;
+                            if(life > SubjectProvider.getInstance().getAttributeValue(subject, "CONSTITUTION")){
+                                life = SubjectProvider.getInstance().getAttributeValue(subject, "CONSTITUTION");
+                            }
+                            subject.setAttributeLevel("HP", life);
+                            double en = subject.getAttributeLevel("SP") + quantity;
+                            if(en > SubjectProvider.getInstance().getAttributeValue(subject, "ENERGY")){
+                                en = SubjectProvider.getInstance().getAttributeValue(subject, "ENERGY");
+                            }
+                            subject.setAttributeLevel("SP", en);
                             sender.sendMessage("§aAção Concluida");
                         }else{
                             sender.sendMessage("§cPlayer offline");
@@ -365,10 +430,12 @@ public class MainComand implements CommandExecutor {
 
     private String[] commandList = {
             "§6/jsc reload // Recarrega a config",
+            "§6/jsc statsee <Player> // Mostra os stats do player",
             "§6/jsc tpadd <Player> <Quantia> // Adiciona training points ao player",
             "§6/jsc tpset <Player> <Quantia> // Seta training points ao player",
             "§6/jsc statadd <Player> <Stat> <Quantia> // Adiciona stats ao player",
             "§6/jsc statset <Player> <Stat> <Quantia> // Seta stats ao player",
+            "§6/jsc heal <Player> <Stat> <Quantia> // Cura a vida ou energia de um player",
             "§6/jsc booster <Player> <Booster> <Tempo> // Adiciona um booster ao player",
     };
 }

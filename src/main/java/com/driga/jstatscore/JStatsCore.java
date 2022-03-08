@@ -14,6 +14,7 @@ import com.driga.jstatscore.inventory.sustainer.InventorySustainer;
 import com.driga.jstatscore.listener.CustomEventListener;
 import com.driga.jstatscore.listener.EventListener;
 import com.driga.jstatscore.listener.MagicSpellsEventListener;
+import com.driga.jstatscore.packet.PacketManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -58,6 +59,7 @@ public final class JStatsCore extends JavaPlugin {
 
         InventorySustainer.register(this);
 
+        PacketManager.getInstance().registerHearthRemoveListener();
         Bukkit.getPluginManager().registerEvents(new EventListener() , this);
         Bukkit.getPluginManager().registerEvents(new CustomEventListener() , this);
         if(getServer().getPluginManager().getPlugin("MagicSpells") != null){

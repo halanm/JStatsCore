@@ -13,14 +13,12 @@ import com.nisovin.magicspells.events.MagicSpellsEntityDamageByEntityEvent;
 import com.nisovin.magicspells.events.SpellApplyDamageEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.entity.Damageable;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
@@ -33,6 +31,7 @@ import java.util.Random;
 public class EventListener implements Listener {
 
     private JStatsCoreAPI api;
+    private List<String> preventDefault = new ArrayList<>();
 
     public EventListener() {
         api = JStatsCoreAPI.getInstance();
@@ -70,7 +69,7 @@ public class EventListener implements Listener {
         if(e.getCause().equals(EntityDamageEvent.DamageCause.CUSTOM)){
             isSkill = true;
         }
-        if(e.getDamager() instanceof Player && e.getEntity() instanceof Player && ((Player) e.getEntity()).getGameMode() == GameMode.SURVIVAL){
+        if(e.getDamager() instanceof Player && e.getEntity() instanceof Player && ((Player) e.getEntity()).getGameMode() == GameMode.SURVIVAL && !e.getEntity().isDead()){
             Player damager = (Player) e.getDamager();
             Player vitim = (Player) e.getEntity();
             Subject subjectDamager = api.getSubjects().find(damager.getUniqueId());
@@ -80,6 +79,9 @@ public class EventListener implements Listener {
             double dmg = e.getDamage();
             e.setDamage(0);
             if(isSkill){
+                LivingEntity entity = vitim;
+                entity.damage(1, damager);
+                vitim.setHealth(20);
                 dmg = dmg - def;
             }else{
                 dmg = (dmg + str) - def;
@@ -89,24 +91,33 @@ public class EventListener implements Listener {
             }
             double life = subjectVitim.getAttributeLevel("HP") - dmg;
             if(life <= 0){
-                vitim.damage(20, e.getDamager());
+                if(isSkill){
+                    vitim.setHealth(0.0);
+                }
+                e.setDamage(99999);
                 life = SubjectProvider.getInstance().getAttributeValue(subjectVitim, "CONSTITUTION");
             }
             subjectVitim.setAttributeLevel("HP", life);
         }
         if(e.getDamager() instanceof Player && !(e.getEntity() instanceof Player)){
             Player damager = (Player) e.getDamager();
+            if(preventDefault.contains(damager.getName())){
+                preventDefault.remove(damager.getName());
+                return;
+            }
             Subject subjectDamager = api.getSubjects().find(damager.getUniqueId());
             double dmg = e.getDamage();
             e.setDamage(0);
             if(isSkill){
                 Damageable damageable = (Damageable) e.getEntity();
+                preventDefault.add(damager.getName());
                 damageable.damage(dmg, damager);
+            }else{
+                dmg = dmg + SubjectProvider.getInstance().getAttributeValue(subjectDamager, "STRENGTH");
+                e.setDamage(dmg);
             }
-            dmg = dmg + SubjectProvider.getInstance().getAttributeValue(subjectDamager, "STRENGTH");
-            e.setDamage(dmg);
         }
-        if(!(e.getDamager() instanceof Player) && e.getEntity() instanceof Player && ((Player) e.getEntity()).getGameMode() == GameMode.SURVIVAL){
+        if(!(e.getDamager() instanceof Player) && e.getEntity() instanceof Player && ((Player) e.getEntity()).getGameMode() == GameMode.SURVIVAL && !e.getEntity().isDead()){
             Player vitim = (Player) e.getEntity();
             Subject subjectVitim = api.getSubjects().find(vitim.getUniqueId());
             double def = SubjectProvider.getInstance().getAttributeValue(subjectVitim, "DEFENSE");
@@ -117,14 +128,14 @@ public class EventListener implements Listener {
             double life = subjectVitim.getAttributeLevel("HP") - dmg;
             e.setDamage(0);
             if(life <= 0){
-                e.setDamage(vitim.getHealth());
+                e.setDamage(99999);
                 life = SubjectProvider.getInstance().getAttributeValue(subjectVitim, "CONSTITUTION");
             }
             subjectVitim.setAttributeLevel("HP", life);
 
         }
         if(e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player && e.getEntity() instanceof Player
-                && ((Player) e.getEntity()).getGameMode() == GameMode.SURVIVAL){
+                && ((Player) e.getEntity()).getGameMode() == GameMode.SURVIVAL && !e.getEntity().isDead()){
             Player damager = (Player) ((Projectile) e.getDamager()).getShooter();
             Player vitim = (Player) e.getEntity();
             Subject subjectDamager = api.getSubjects().find(damager.getUniqueId());
@@ -137,7 +148,7 @@ public class EventListener implements Listener {
             }
             double life = subjectVitim.getAttributeLevel("HP") - dmg;
             if(life <= 0){
-                e.setDamage(vitim.getHealth());
+                e.setDamage(99999);
                 life = SubjectProvider.getInstance().getAttributeValue(subjectVitim, "CONSTITUTION");
             }
             subjectVitim.setAttributeLevel("HP", life);

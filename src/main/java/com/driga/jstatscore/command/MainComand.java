@@ -9,6 +9,8 @@ import com.driga.jstatscore.event.SubjectChangeAttributeLevelEvent;
 import com.driga.jstatscore.event.SubjectReceiveTpEvent;
 import com.driga.jstatscore.factory.AttributeFactory;
 import com.driga.jstatscore.factory.FormFactory;
+import com.driga.jstatscore.inventory.SubjectStatsInventory;
+import com.driga.jstatscore.nbt.NbtHandler;
 import com.driga.jstatscore.provider.SubjectProvider;
 import com.driga.jstatscore.util.StatsUtils;
 import org.bukkit.Bukkit;
@@ -58,6 +60,16 @@ public class MainComand implements CommandExecutor {
                     }
                     return false;
                 }
+                case "statopen": {
+                    Player player = Bukkit.getPlayer(args[1]);
+                    if (player != null && player.isOnline()) {
+                        Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                        new SubjectStatsInventory(subject).open(player);
+                    } else {
+                        sender.sendMessage("§cPlayer offline");
+                    }
+                    return false;
+                }
             }
         }
         if(args.length == 3){
@@ -67,6 +79,9 @@ public class MainComand implements CommandExecutor {
                     double quantity = Integer.parseInt(args[2]);
                     if (player != null && player.isOnline()) {
                         Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                        if(quantity + subject.getTrainingPoints() < 0){
+                            quantity = 0;
+                        }
                         new SubjectReceiveTpEvent(subject, quantity);
                         sender.sendMessage("§aAção Concluida");
                     } else {
@@ -77,6 +92,9 @@ public class MainComand implements CommandExecutor {
                 case "tpset": {
                     Player player = Bukkit.getPlayer(args[1]);
                     int quantity = Integer.parseInt(args[2]);
+                    if(quantity < 0){
+                        quantity = 0;
+                    }
                     if (player != null && player.isOnline()) {
                         Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
                         double tp = quantity;
@@ -106,6 +124,9 @@ public class MainComand implements CommandExecutor {
                             if(con > attribute.getMaxValue()){
                                 con = attribute.getMaxValue();
                             }
+                            if(con < 1){
+                                con = 1;
+                            }
                             new SubjectChangeAttributeLevelEvent(subject, attribute, con);
                             sender.sendMessage("§aAção Concluida");
                         }else{
@@ -120,6 +141,9 @@ public class MainComand implements CommandExecutor {
                             double str = subject.getAttributeLevel("STRENGTH") + quantity;
                             if(str > attribute.getMaxValue()){
                                 str = attribute.getMaxValue();
+                            }
+                            if(str < 1){
+                                str = 1;
                             }
                             new SubjectChangeAttributeLevelEvent(subject, attribute, str);
                             sender.sendMessage("§aAção Concluida");
@@ -136,6 +160,9 @@ public class MainComand implements CommandExecutor {
                             if(def > attribute.getMaxValue()){
                                 def = attribute.getMaxValue();
                             }
+                            if(def < 1){
+                                def = 1;
+                            }
                             new SubjectChangeAttributeLevelEvent(subject, attribute, def);
                             sender.sendMessage("§aAção Concluida");
                         }else{
@@ -150,6 +177,9 @@ public class MainComand implements CommandExecutor {
                             double energy = subject.getAttributeLevel("ENERGY") + quantity;
                             if(energy > attribute.getMaxValue()){
                                 energy = attribute.getMaxValue();
+                            }
+                            if(energy < 1){
+                                energy = 1;
                             }
                             new SubjectChangeAttributeLevelEvent(subject, attribute, energy);
                             sender.sendMessage("§aAção Concluida");
@@ -166,6 +196,9 @@ public class MainComand implements CommandExecutor {
                             if(mp > attribute.getMaxValue()){
                                 mp = attribute.getMaxValue();
                             }
+                            if(mp < 1){
+                                mp = 1;
+                            }
                             new SubjectChangeAttributeLevelEvent(subject, attribute, mp);
                             sender.sendMessage("§aAção Concluida");
                         }else{
@@ -181,17 +214,26 @@ public class MainComand implements CommandExecutor {
                             if(con > CONSTITUTION.getMaxValue()){
                                 con = CONSTITUTION.getMaxValue();
                             }
+                            if(con < 1){
+                                con = 1;
+                            }
                             new SubjectChangeAttributeLevelEvent(subject, CONSTITUTION, con);
                             Attribute STRENGTH = JStatsCoreAPI.getInstance().getAttributes().find("STRENGTH");
                             double str = subject.getAttributeLevel("STRENGTH") + quantity;
                             if(str > STRENGTH.getMaxValue()){
                                 str = STRENGTH.getMaxValue();
                             }
+                            if(str < 1){
+                                str = 1;
+                            }
                             new SubjectChangeAttributeLevelEvent(subject, STRENGTH, str);
                             Attribute DEFENSE = JStatsCoreAPI.getInstance().getAttributes().find("DEFENSE");
                             double def = subject.getAttributeLevel("DEFENSE") + quantity;
                             if(def > DEFENSE.getMaxValue()){
                                 def = DEFENSE.getMaxValue();
+                            }
+                            if(def < 1){
+                                def = 1;
                             }
                             new SubjectChangeAttributeLevelEvent(subject, DEFENSE, def);
 
@@ -200,12 +242,18 @@ public class MainComand implements CommandExecutor {
                             if(energy > ENERGY.getMaxValue()){
                                 energy = ENERGY.getMaxValue();
                             }
+                            if(energy < 1){
+                                energy = 1;
+                            }
                             new SubjectChangeAttributeLevelEvent(subject, ENERGY, energy);
 
                             Attribute MP = JStatsCoreAPI.getInstance().getAttributes().find("MAGIC_POWER");
                             double mp = subject.getAttributeLevel("MAGIC_POWER") + quantity;
                             if(mp > MP.getMaxValue()){
                                 mp = MP.getMaxValue();
+                            }
+                            if(mp < 1){
+                                mp = 1;
                             }
                             new SubjectChangeAttributeLevelEvent(subject, MP, mp);
                             sender.sendMessage("§aAção Concluida");
@@ -225,6 +273,9 @@ public class MainComand implements CommandExecutor {
                 Player player = Bukkit.getPlayer(args[1]);
                 String stat = args[2];
                 int quantity = Integer.parseInt(args[3]);
+                if(quantity < 1){
+                    quantity = 1;
+                }
                 switch (stat.toLowerCase()){
                     case "con":{
                         if(player != null && player.isOnline()){
@@ -348,6 +399,239 @@ public class MainComand implements CommandExecutor {
                     }
                 }
             }
+            if(args[0].equals("stataddp")){
+                Player player = Bukkit.getPlayer(args[1]);
+                String stat = args[2];
+                int quantity = Integer.parseInt(args[3]);
+                switch (stat.toLowerCase()){
+                    case "con":{
+                        if(player != null && player.isOnline()){
+                            Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("CONSTITUTION");
+                            Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                            double con = subject.getAttributeLevel("CONSTITUTION") + quantity;
+                            if(con < 1){
+                                con = 1;
+                            }
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, con);
+                            sender.sendMessage("§aAção Concluida");
+                        }else{
+                            sender.sendMessage("§cPlayer offline");
+                        }
+                        return false;
+                    }
+                    case "str":{
+                        if(player != null && player.isOnline()){
+                            Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("STRENGTH");
+                            Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                            double str = subject.getAttributeLevel("STRENGTH") + quantity;
+                            if(str < 1){
+                                str = 1;
+                            }
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, str);
+                            sender.sendMessage("§aAção Concluida");
+                        }else{
+                            sender.sendMessage("§cPlayer offline");
+                        }
+                        return false;
+                    }
+                    case "def":{
+                        if(player != null && player.isOnline()){
+                            Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("DEFENSE");
+                            Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                            double def = subject.getAttributeLevel("DEFENSE") + quantity;
+                            if(def < 1){
+                                def = 1;
+                            }
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, def);
+                            sender.sendMessage("§aAção Concluida");
+                        }else{
+                            sender.sendMessage("§cPlayer offline");
+                        }
+                        return false;
+                    }
+                    case "energy":{
+                        if(player != null && player.isOnline()){
+                            Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("ENERGY");
+                            Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                            double energy = subject.getAttributeLevel("ENERGY") + quantity;
+                            if(energy < 1){
+                                energy = 1;
+                            }
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, energy);
+                            sender.sendMessage("§aAção Concluida");
+                        }else{
+                            sender.sendMessage("§cPlayer offline");
+                        }
+                        return false;
+                    }
+                    case "mp":{
+                        if(player != null && player.isOnline()){
+                            Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("MAGIC_POWER");
+                            Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                            double mp = subject.getAttributeLevel("MAGIC_POWER") + quantity;
+                            if(mp < 1){
+                                mp = 1;
+                            }
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, mp);
+                            sender.sendMessage("§aAção Concluida");
+                        }else{
+                            sender.sendMessage("§cPlayer offline");
+                        }
+                        return false;
+                    }
+                    case "all":{
+                        if(player != null && player.isOnline()){
+                            Attribute CONSTITUTION = JStatsCoreAPI.getInstance().getAttributes().find("CONSTITUTION");
+                            Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                            double con = subject.getAttributeLevel("CONSTITUTION") + quantity;
+                            if(con < 1){
+                                con = 1;
+                            }
+                            new SubjectChangeAttributeLevelEvent(subject, CONSTITUTION, con);
+
+                            Attribute STRENGTH = JStatsCoreAPI.getInstance().getAttributes().find("STRENGTH");
+                            double str = subject.getAttributeLevel("STRENGTH") + quantity;
+                            if(str < 1){
+                                str = 1;
+                            }
+                            new SubjectChangeAttributeLevelEvent(subject, STRENGTH, str);
+
+                            Attribute DEFENSE = JStatsCoreAPI.getInstance().getAttributes().find("DEFENSE");
+                            double def = subject.getAttributeLevel("DEFENSE") + quantity;
+                            if(def < 1){
+                                def = 1;
+                            }
+                            new SubjectChangeAttributeLevelEvent(subject, DEFENSE, def);
+
+                            Attribute ENERGY = JStatsCoreAPI.getInstance().getAttributes().find("ENERGY");
+                            double energy = subject.getAttributeLevel("ENERGY") + quantity;
+                            if(energy < 1){
+                                energy = 1;
+                            }
+                            new SubjectChangeAttributeLevelEvent(subject, ENERGY, energy);
+
+                            Attribute MP = JStatsCoreAPI.getInstance().getAttributes().find("MAGIC_POWER");
+                            double mp = subject.getAttributeLevel("MAGIC_POWER") + quantity;
+                            if(mp < 1){
+                                mp = 1;
+                            }
+                            new SubjectChangeAttributeLevelEvent(subject, MP, mp);
+                            sender.sendMessage("§aAção Concluida");
+                        }else{
+                            sender.sendMessage("§cPlayer offline");
+                        }
+                        return false;
+                    }
+                    default:{
+                        sender.sendMessage("§cEsse stat não existe");
+                        return false;
+                    }
+                }
+            }
+
+            if(args[0].equals("statsetp")){
+                Player player = Bukkit.getPlayer(args[1]);
+                String stat = args[2];
+                int quantity = Integer.parseInt(args[3]);
+                if(quantity < 1){
+                    quantity = 1;
+                }
+                switch (stat.toLowerCase()){
+                    case "con":{
+                        if(player != null && player.isOnline()){
+                            Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("CONSTITUTION");
+                            Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                            double con = quantity;
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, con);
+                            sender.sendMessage("§aAção Concluida");
+                        }else{
+                            sender.sendMessage("§cPlayer offline");
+                        }
+                        return false;
+                    }
+                    case "str":{
+                        if(player != null && player.isOnline()){
+                            Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("STRENGTH");
+                            Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                            double str = quantity;
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, str);
+                            sender.sendMessage("§aAção Concluida");
+                        }else{
+                            sender.sendMessage("§cPlayer offline");
+                        }
+                        return false;
+                    }
+                    case "def":{
+                        if(player != null && player.isOnline()){
+                            Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("DEFENSE");
+                            Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                            double def = quantity;
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, def);
+                            sender.sendMessage("§aAção Concluida");
+                        }else{
+                            sender.sendMessage("§cPlayer offline");
+                        }
+                        return false;
+                    }
+                    case "energy":{
+                        if(player != null && player.isOnline()){
+                            Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("ENERGY");
+                            Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                            double energy = quantity;
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, energy);
+                            sender.sendMessage("§aAção Concluida");
+                        }else{
+                            sender.sendMessage("§cPlayer offline");
+                        }
+                        return false;
+                    }
+                    case "mp":{
+                        if(player != null && player.isOnline()){
+                            Attribute attribute = JStatsCoreAPI.getInstance().getAttributes().find("MAGIC_POWER");
+                            Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                            double mp = quantity;
+                            new SubjectChangeAttributeLevelEvent(subject, attribute, mp);
+                            sender.sendMessage("§aAção Concluida");
+                        }else{
+                            sender.sendMessage("§cPlayer offline");
+                        }
+                        return false;
+                    }
+                    case "all":{
+                        if(player != null && player.isOnline()){
+                            Attribute CONSTITUTION = JStatsCoreAPI.getInstance().getAttributes().find("CONSTITUTION");
+                            Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
+                            double con = quantity;
+                            new SubjectChangeAttributeLevelEvent(subject, CONSTITUTION, con);
+
+                            Attribute STRENGTH = JStatsCoreAPI.getInstance().getAttributes().find("STRENGTH");
+                            double str = quantity;
+                            new SubjectChangeAttributeLevelEvent(subject, STRENGTH, str);
+
+                            Attribute DEFENSE = JStatsCoreAPI.getInstance().getAttributes().find("DEFENSE");
+                            double def = quantity;
+                            new SubjectChangeAttributeLevelEvent(subject, DEFENSE, def);
+
+                            Attribute ENERGY = JStatsCoreAPI.getInstance().getAttributes().find("ENERGY");
+                            double energy = quantity;
+                            new SubjectChangeAttributeLevelEvent(subject, ENERGY, energy);
+
+                            Attribute MP = JStatsCoreAPI.getInstance().getAttributes().find("MAGIC_POWER");
+                            double mp = quantity;
+                            new SubjectChangeAttributeLevelEvent(subject, MP, mp);
+
+                            sender.sendMessage("§aAção Concluida");
+                        }else{
+                            sender.sendMessage("§cPlayer offline");
+                        }
+                        return false;
+                    }
+                    default:{
+                        sender.sendMessage("§cEsse stat não existe");
+                        return false;
+                    }
+                }
+            }
 
             if(args[0].equals("heal")){
                 Player player = Bukkit.getPlayer(args[1]);
@@ -359,6 +643,10 @@ public class MainComand implements CommandExecutor {
                             Subject subject = JStatsCoreAPI.getInstance().getSubjects().find(player.getUniqueId());
                             double life = subject.getAttributeLevel("HP") + quantity;
                             if(life > SubjectProvider.getInstance().getAttributeValue(subject, "CONSTITUTION")){
+                                life = SubjectProvider.getInstance().getAttributeValue(subject, "CONSTITUTION");
+                            }
+                            if(life < 0){
+                                player.setHealth(0);
                                 life = SubjectProvider.getInstance().getAttributeValue(subject, "CONSTITUTION");
                             }
                             subject.setAttributeLevel("HP", life);
@@ -375,6 +663,9 @@ public class MainComand implements CommandExecutor {
                             if(en > SubjectProvider.getInstance().getAttributeValue(subject, "ENERGY")){
                                 en = SubjectProvider.getInstance().getAttributeValue(subject, "ENERGY");
                             }
+                            if(en < 0){
+                                en = 0;
+                            }
                             subject.setAttributeLevel("SP", en);
                             sender.sendMessage("§aAção Concluida");
                         }else{
@@ -389,10 +680,17 @@ public class MainComand implements CommandExecutor {
                             if(life > SubjectProvider.getInstance().getAttributeValue(subject, "CONSTITUTION")){
                                 life = SubjectProvider.getInstance().getAttributeValue(subject, "CONSTITUTION");
                             }
+                            if(life < 0){
+                                player.setHealth(0);
+                                life = SubjectProvider.getInstance().getAttributeValue(subject, "CONSTITUTION");
+                            }
                             subject.setAttributeLevel("HP", life);
                             double en = subject.getAttributeLevel("SP") + quantity;
                             if(en > SubjectProvider.getInstance().getAttributeValue(subject, "ENERGY")){
                                 en = SubjectProvider.getInstance().getAttributeValue(subject, "ENERGY");
+                            }
+                            if(en < 0){
+                                en = 0;
                             }
                             subject.setAttributeLevel("SP", en);
                             sender.sendMessage("§aAção Concluida");
@@ -423,6 +721,17 @@ public class MainComand implements CommandExecutor {
                 }
                 return false;
             }
+            if(args[0].equals("nbt")){
+                Player player = Bukkit.getPlayer(args[1]);
+                String nbt = args[2].toUpperCase();
+                String value = args[3];
+                if(player != null && player.isOnline()){
+                    NbtHandler.getInstance().setValue(player, nbt, value);
+                }else{
+                    sender.sendMessage("§cPlayer offline");
+                }
+                return false;
+            }
         }
         sender.sendMessage(commandList);
         return false;
@@ -431,11 +740,15 @@ public class MainComand implements CommandExecutor {
     private String[] commandList = {
             "§6/jsc reload // Recarrega a config",
             "§6/jsc statsee <Player> // Mostra os stats do player",
+            "§6/jsc statopen <Player> // Abre o menu de stats do player",
             "§6/jsc tpadd <Player> <Quantia> // Adiciona training points ao player",
             "§6/jsc tpset <Player> <Quantia> // Seta training points ao player",
             "§6/jsc statadd <Player> <Stat> <Quantia> // Adiciona stats ao player",
             "§6/jsc statset <Player> <Stat> <Quantia> // Seta stats ao player",
+            "§6/jsc stataddp <Player> <Stat> <Quantia> // Adiciona stats ao player além do limite",
+            "§6/jsc statsetp <Player> <Stat> <Quantia> // Seta stats ao player além do limite",
             "§6/jsc heal <Player> <Stat> <Quantia> // Cura a vida ou energia de um player",
             "§6/jsc booster <Player> <Booster> <Tempo> // Adiciona um booster ao player",
+            "§6/jsc nbt <Player> <NBT> <Valor> // Muda o nbt de um player",
     };
 }

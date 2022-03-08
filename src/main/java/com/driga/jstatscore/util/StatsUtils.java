@@ -61,7 +61,7 @@ public class StatsUtils {
                         subject.setAttributeLevel("HP", hp);
                         subject.setAttributeLevel("SP", sp);
                     }
-                    if(subject.getPlayer().getFoodLevel() > 6){
+                    if(subject.getPlayer().getFoodLevel() > 19){
                         subject.setAttributeLevel("HP", hp);
                         subject.setAttributeLevel("SP", sp);
                     }
